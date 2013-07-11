@@ -1,7 +1,6 @@
 :- module(p99, [last/2, lastButOne/2, element_at/3, number_elem/2, reverse/2,
 		palindrome/1, flatten/2, compress/2, pack/2, encode/2,
-		encode_modified/2, decode/2, encode_direct/2, dupli/2,
-		dupli/3, drop/3]).
+		encode_modified/2, decode/2, encode_direct/2, dupli/2]).
 
 %1
 last([X], X) :- !.
@@ -134,24 +133,4 @@ dupli([], []).
 dupli([H|T], [H,H|T1]) :-
 	dupli(T, T1).
 
-%15
-dupli(List, N, DupList) :-
-	dupli(List, N, N, DupList).
-dupli([], _, _, []) :- !.
-dupli(_, _, 0, []) :- !.
-dupli([H|T], 1, N, [H|T1]) :- !,
-	dupli(T, N, N, T1).
-dupli([H|T], N, M, [H,H|T1]) :- N > 1, !,
-        N_1 is N-1,
-	dupli([H|T], N_1, M, [H|T1]).
 
-%16
-drop(List, N, Result) :-
-	lists:reverse(List, RevList),
-	drop1(RevList, N, RevResult),
-	lists:reverse(RevResult, Result).
-drop1(List, 0, List) :- !.
-drop1([], _, []).
-drop1([_|T], N, Result) :- N > 0, !,
-	N_1 is N-1,
-	drop1(T, N_1, Result).
