@@ -1,0 +1,1 @@
+-define(binding(A, B), {A, B}).
