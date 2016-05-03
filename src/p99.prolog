@@ -1,157 +1,117 @@
-:- module(p99, [last/2, lastButOne/2, element_at/3, number_elem/2, reverse/2,
-		palindrome/1, flatten/2, compress/2, pack/2, encode/2,
-		encode_modified/2, decode/2, encode_direct/2, dupli/2,
-		dupli/3, drop/3]).
 
-%1
-last([X], X) :- !.
-last([_|T], X) :-
-	last(T, X).
+% P01
+my_last(X, [X]).
+my_last(X, [_, H|T]) :-
+    my_last(X, [H|T]).
 
-%2
-lastButOne([X,_], X) :- !.
-lastButOne([_|T], X) :- [_,_|_] = T, !,
-	lastButOne(T, X).
+% P02
+last_but_one(X, [X,_]).
+last_but_one(X, [H|T]) :-
+    not(length([H|T], 2)),
+    last_but_one(X, T).
 
-%3
-element_at(X, [X|_], 1) :- !.
-element_at(X, [_|T], K) :- K > 1, !,
-	K_1 is K-1,
-	element_at(X, T, K_1).
+% P03
+element_at(X, [X|_], 1).
+element_at(X, [_|T], K) :-
+    K > 1,
+    K1 is K - 1,
+    element_at(X, T, K1).
 
-%4
-number_elem(List, N) :-
-	number_elem(List, 0, N).
-number_elem([], N, N).
-number_elem([_|T], A, N) :-
-	A1 is A+1,
-	number_elem(T, A1, N).
+% P04
+my_length(0, []).
+my_length(N, [_|T]) :-
+    my_length(N1, T),
+    N is N1 + 1.
 
-%5
-reverse(List, RevList) :-
-	reverse(List, [], RevList).
-reverse([], RevList, RevList).
-reverse([H|T], A, RevList) :-
-	reverse(T, [H|A], RevList).
+% P05
+my_reverse([], []).
+my_reverse([H1|T1], List2) :-
+    append(T2, [H1], List2),
+    my_reverse(T1, T2), !.
+my_reverse([H1|T1], List2) :-
+    my_reverse(T1, T2),
+    append(T2, [H1], List2).
 
-%6
+% P06
 palindrome(List) :-
-	reverse(List, List).
+    my_reverse(List, List).
 
-%7
-flatten(List, FlatList) :-
-	flatten(List, [], FlatList).
-flatten([], RevFlatList, FlatList) :-
-	reverse(RevFlatList, FlatList).
-flatten([H|T], A, FlatList) :- is_list(H), !,
-	flatten(H, H1),
-	reverse(H1, H2),
-	append(H2, A, A1),
-	flatten(T, A1, FlatList).
-flatten([H|T], A, FlatList) :-
-	flatten(T, [H|A], FlatList).
+% P07
+my_flatten([], []).
+my_flatten([H|T], List) :-
+    is_list(H), !,
+    my_flatten(H, H1),
+    my_flatten(T, T1),
+    append(H1, T1, List).
+my_flatten([H|T], List) :-
+    my_flatten(T, T1),
+    List = [H|T1].
 
-%8
+% P08
 compress([], []).
-compress([H|[]], [H]) :- !.
-compress([H|[H|T]], Result) :- !,
-	compress([H|T], Result).
-compress([H|[H1|T]], [H|Result1]) :-
-	compress([H1|T], Result1).
+compress([X], [X]) :- !.
+compress([H,H|T], List) :- !,
+    compress([H|T], List).
+compress([H,X|T], [H|List]) :-
+    compress([X|T], List).
 
-%9
-pack(List, PackList) :-
-	pack(List, [], PackList).
-pack([], RevPackList, PackList) :-
-	lists:reverse(RevPackList, PackList).
-pack([H|T], [], PackList) :- !,
-	pack(T, [[H]], PackList).
-pack([H|T], [[H|T1]|T2], PackList) :- !,
-	pack(T, [[H,H|T1]|T2], PackList).
-pack([H|T], A, PackList) :-
-	pack(T, [[H]|A], PackList).
+% P09
+pack([], []).
+pack([X], [[X]]) :- !.
+pack([H,H|T], [[H|Hs]|List]) :- !,
+    pack([H|T], [Hs|List]).
+pack([H,X|T], [[H]|List]) :-
+    pack([X|T], List).
 
-%10
-encode(List, LenList) :-
-	p99:pack(List, PackList),
-	count(PackList, LenList).
-count(PackList, LenList) :-
-	count(PackList, [], LenList).
-count([], RevLenList, LenList) :-
-	lists:reverse(RevLenList, LenList).
-count([[H|T1]|T], A, LenList) :-
-	lists:length([H|T1], L),
-	count(T, [[L,H]|A], LenList).
+% P10
+encode([], []).
+encode([X], [[1,X]]) :- !.
+encode([H,H|T], [[N,H]|List]) :- !,
+    encode([H|T], [[M,H]|List]),
+    N is M + 1.
+encode([H,X|T], [[1,H]|List]) :-
+    encode([X|T], List).
 
-%11
-encode_modified(List, LenList) :-
-	p99:pack(List, PackList),
-	count_modified(PackList, LenList).
-count_modified(PackList, LenList) :-
-	count_modified(PackList, [], LenList).
-count_modified([], RevLenList, LenList) :-
-	lists:reverse(RevLenList, LenList).
-count_modified([[H]|T], A, LenList) :- !,
-	count_modified(T, [H|A], LenList).
-count_modified([[H|T1]|T], A, LenList) :-
-	lists:length([H|T1], L),
-	count_modified(T, [[L,H]|A], LenList).
+% P11
+encode_modified([], []).
+encode_modified([X], [X]) :- !.
+encode_modified([H,H|T], [[N,H]|List]) :-
+    encode_modified([H|T], [[M,H]|List]), !,
+    N is M + 1.
+encode_modified([H,H|T], [[2,H]|List]) :- !,
+    encode_modified([H|T], [H|List]).
+encode_modified([H,X|T], [H|List]) :-
+    encode_modified([X|T], List).
 
-%12
-decode([], []).
-decode([H|T], Result) :-
-	expand(H, H1),
-	decode(T, T1),
-	lists:append(H1, T1, Result).
-expand(EncItem, DecItem) :-
-	expand(EncItem, [], DecItem).
-expand([], DecItem, DecItem).
-expand([1,H], A, DecItem) :-
-	expand([], [H|A], DecItem).
-expand([N,H], A, DecItem) :- N > 1, !,
-	N_1 is N-1,
-	expand([N_1,H], [H|A], DecItem).
-expand(H, A, DecItem) :- not(is_list(H)), !,
-	expand([1,H], A, DecItem).
+% P12
+decode_modified([], []).
+decode_modified([H|T], [H|List]) :- not(is_list(H)), !,
+    decode_modified(T, List).
+decode_modified([[1,H]|T], [H|List]) :- !,
+    decode_modified(T, List).
+decode_modified([[N,H]|T], [H|List]) :-
+    N1 is N - 1,
+    decode_modified([[N1,H]|T], List).
 
-%13
-encode_direct(List, EncList) :-
-	encode_direct(List, [], EncList).
-encode_direct([], RevEncList, EncList) :-
-	lists:reverse(RevEncList, EncList).
-encode_direct([H|T], [], EncList) :- !,
-	encode_direct(T, [H], EncList).
-encode_direct([H|T], [H|T1], EncList) :- !,
-	encode_direct(T, [[2,H]|T1], EncList).
-encode_direct([H|T], [[N,H]|T1], EncList) :- !,
-	N1 is N+1,
-	encode_direct(T, [[N1,H]|T1], EncList).
-encode_direct([H|T], [H1|T1], EncList) :- !,
-	encode_direct(T, [H,H1|T1], EncList).
+% P13
+encode_direct([], []).
+encode_direct([X], [X]) :- !.
+encode_direct([H,H|T], [[N,H]|List]) :-
+    encode_direct([H|T], [[M,H]|List]), !,
+    N is M + 1.
+encode_direct([H,H|T], [[2,H]|List]) :-
+    encode_direct([H|T], [H|List]), !.
+encode_direct([H,X|T], [H|List]) :-
+    encode_direct([X|T], List).
 
-%14
+% P14
 dupli([], []).
-dupli([H|T], [H,H|T1]) :-
-	dupli(T, T1).
+dupli([H|T], [H,H|R]) :-
+    dupli(T, R).
 
-%15
-dupli(List, N, DupList) :-
-	dupli(List, N, N, DupList).
-dupli([], _, _, []) :- !.
-dupli(_, _, 0, []) :- !.
-dupli([H|T], 1, N, [H|T1]) :- !,
-	dupli(T, N, N, T1).
-dupli([H|T], N, M, [H,H|T1]) :- N > 1, !,
-        N_1 is N-1,
-	dupli([H|T], N_1, M, [H|T1]).
-
-%16
-drop(List, N, Result) :-
-	lists:reverse(List, RevList),
-	drop1(RevList, N, RevResult),
-	lists:reverse(RevResult, Result).
-drop1(List, 0, List) :- !.
-drop1([], _, []).
-drop1([_|T], N, Result) :- N > 0, !,
-	N_1 is N-1,
-	drop1(T, N_1, Result).
+% P15
+dupli([], _, []).
+dupli([H|T], N, List) :-
+    decode_modified([[N,H]], H1),
+    dupli(T, N, T1),
+    append(H1, T1, List).
