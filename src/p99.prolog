@@ -178,10 +178,11 @@ range(_, _, []).
 
 % P23
 rnd_select(List, 0, []) :- is_list(List), !.
+rnd_select([], _, []) :- !.
 rnd_select(List1, N, List2) :- is_list(List1), !,
     N1 is N - 1,
     length(List1, M),
-    R is random(M-1) + 1,
+    R is random(M) + 1,
     remove_at(X, List1, R, T),
     rnd_select(T, N1, T1),
     List2 = [X|T1].
@@ -191,3 +192,59 @@ rnd_select(N, M, List) :- number(N), number(M),
     range(1, M, List1),
     rnd_select(List1, N, List).
 
+% P25
+rnd_permu(List1, List2) :-
+    my_length(N, List1),
+    rnd_select(List1, N, List2).
+
+% P26
+combination(0, _, []) :- !.
+combination(N, List, [H|T]) :-
+    my_length(L, List),
+    range(1, L, S),
+    member(Ih, S),
+    remove_at(H, List, Ih, List1),
+    N1 is N - 1,
+    combination(N1, List1, T).
+
+% P27
+group3(List, Group1, Group2, Group3) :-
+    combination(3, [2,3,4], [N1, N2, N3]),
+    split(List, N1, Group1, List1),
+    split(List1, N2, Group2, List2),
+    split(List2, N3, Group3, _).
+
+group(List1, Ns, List2) :-
+    my_length(L, Ns),
+    combination(L, Ns, Ns1),
+    group_N(List1, Ns1, List2).
+
+group_N(_, [], []).
+group_N(List1, [N|Ns], [List2|List3]) :-
+    split(List1, N, List2, List4),
+    group_N(List4, Ns, List3).
+
+% P28
+lsort(List1, List2) :-
+    my_length(L, List1),
+    combination(L, List1, List2),
+    length_sorted(List2).
+
+length_sorted([]).
+length_sorted([_]) :- !.
+length_sorted([H1,H2|T]) :-
+    my_length(N1, H1),
+    my_length(N2, H2),
+    N1 =< N2,
+    length_sorted([H2|T]).
+
+lfsort(List1, List2) :-
+    lsort(List1, List3),
+    findall(L, (member(X, List3), my_length(L, X)), List4),
+    pack(List4, List5),
+    lsort(List5, List6),
+    findall(X, (member([Y|_], List6),
+		findall(Z, (member(Z, List1), my_length(Y, Z)),
+			X)),
+	    List7),
+    append(List7, List2).
