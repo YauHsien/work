@@ -337,3 +337,52 @@ calculate_totient_phi([], 1).
 calculate_totient_phi([[N,M]|T], P) :-
     calculate_totient_phi(T, P1),
     P is P1 * (N-1) * (N ^ (M-1)).
+
+% P38
+measure1(N) :-
+    statistics(inferences, I1),
+    _ is totient_phi(10090),
+    statistics(inferences, I2),
+    N is I2 - I1.
+
+measure2(N) :-
+    statistics(inferences, I1),
+    _ is totient_phi_improved(10090),
+    statistics(inferences, I2),
+    N is I2 - I1.
+
+% P39
+prime_numbers(N, M, []) :- N > M, !.
+prime_numbers(N, M, [N|L]) :- is_prime(N), !,
+    N1 is N + 1,
+    prime_numbers(N1, M, L).
+prime_numbers(N, M, L) :-
+    N1 is N + 1,
+    prime_numbers(N1, M, L).
+
+% P40
+goldbach(N, [X,Y]) :- N > 0, N rem 2 =:= 0,
+    N1 is N div 2,
+    prime_numbers(1, N1, R),
+    member(X, R),
+    Y is N - X,
+    is_prime(Y).
+
+% P41
+goldbach_list(N, M) :- N =< M,
+    goldbach(N, [X,Y]), !,
+    format("~p = ~p + ~p~n", [N, X, Y]),
+    N1 is N + 1,
+    goldbach_list(N1, M).
+goldbach_list(N, M) :- N =< M,
+    N1 is N + 1,
+    goldbach_list(N1, M).
+
+goldbach_list(N, M, Limit) :- N =< M,
+    goldbach(N, [X,Y]), X >= Limit, !,
+    format("~p = ~p + ~p~n", [N, X, Y]),
+    N1 is N + 1,
+    goldbach_list(N1, M, Limit).
+goldbach_list(N, M, Limit) :- N =< M,
+    N1 is N + 1,
+    goldbach_list(N1, M, Limit).
