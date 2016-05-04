@@ -248,3 +248,92 @@ lfsort(List1, List2) :-
 			X)),
 	    List7),
     append(List7, List2).
+
+% P31
+is_prime(1) :- !.
+is_prime(N) :- N > 1,
+    test_if_prime(2, N).
+
+test_if_prime(M, N) :-
+    M * M > N, !.
+test_if_prime(M, N) :-
+    N rem M =:= 0, !,
+    fail.
+test_if_prime(M, N) :-
+    M1 is M + 1,
+    test_if_prime(M1, N).
+
+% P32
+gcd(G, 0, G) :- !.
+gcd(N, M, G) :- N < M, !,
+    gcd(M, N, G).
+gcd(N, M, G) :- M > 0,
+    N1 is N rem M,
+    gcd(M, N1, G).
+
+% P33
+coprime(N, M) :-
+    gcd(N, M, 1).
+
+% P34
+% By using arithmetic_function/1, functions can be created
+% in SWI.
+% But note that the artithmetic_function/1 is deprecated now.
+:- arithmetic_function(totient_phi/1).
+totient_phi(M, P) :-
+    M1 is M - 1,
+    totient_phi(M, M1, P).
+
+totient_phi(_, 1, 1) :- !.
+totient_phi(N, M, P) :- M > 1, coprime(N, M), !,
+    M1 is M - 1,
+    totient_phi(N, M1, P1),
+    P is P1 + 1.
+totient_phi(N, M, P) :- M > 1,
+    M1 is M - 1,
+    totient_phi(N, M1, P).
+
+% P35
+prime_factors(N, L) :-
+    prime_factors(N, L, 2).
+
+prime_factors(N, [N], M) :- N > 0, M * M > N, !.
+prime_factors(N, [M|L], M) :- N > 0,
+    1 < M,
+    M * M =< N,
+    is_prime(M),
+    N rem M =:= 0, !,
+    N1 is N div M,
+    prime_factors(N1, L, M).
+prime_factors(N, L, M) :- N > 0,
+    M1 is M + 1,
+    prime_factors(N, L, M1).
+
+% P36
+prime_factors_multi(N, L) :-
+    prime_factors_multi(N, L, 2).
+
+prime_factors_multi(N, [[N,1]], M) :- N > 0, M * M > N, !.
+prime_factors_multi(N, L, M) :- N > 0,
+    1 < M,
+    N rem M =\= 0, !,
+    M1 is M + 1,
+    prime_factors_multi(N, L, M1).
+prime_factors_multi(N, [[M,X]|L], M) :- N > 0,
+    N1 is N div M,
+    prime_factors_multi(N1, [[M,X1]|L], M), !,
+    X is X1 + 1.
+prime_factors_multi(N, [[M,1]|L], M) :- N > 0,
+    N1 is N div M,
+    prime_factors_multi(N1, L, M).
+
+% P37
+:- arithmetic_function(totient_phi_improved/1).
+totient_phi_improved(M, P) :-
+    prime_factors_multi(M, L),
+    calculate_totient_phi(L, P).
+
+calculate_totient_phi([], 1).
+calculate_totient_phi([[N,M]|T], P) :-
+    calculate_totient_phi(T, P1),
+    P is P1 * (N-1) * (N ^ (M-1)).
