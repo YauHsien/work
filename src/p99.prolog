@@ -115,3 +115,79 @@ dupli([H|T], N, List) :-
     decode_modified([[N,H]], H1),
     dupli(T, N, T1),
     append(H1, T1, List).
+
+% P16
+drop(List1, N, List2) :-
+    drop(List1, N, List2, N).
+
+drop([], _, [], _).
+drop([_|T], N, R, 1) :- !,
+    drop(T, N, R, N).
+drop([H|T], N, R, M) :-
+    M1 is M - 1,
+    drop(T, N, T1, M1),
+    R = [H|T1].
+
+% P17
+split([], _, [], []).
+split([H|T], 0, [], [H|T]) :- !.
+split([H|T], N, [H|H1], T1) :-
+    N1 is N - 1,
+    split(T, N1, H1, T1).
+
+% P18
+slice(List1, 0, N, List2) :- !,
+    slice(List1, 1, N, List2).
+slice(List1, N, M, List2) :- N =< M, !,
+    N1 is N - 1,
+    M1 is M - N + 1,
+    split(List1, N1, _, List3),
+    split(List3, M1, List2, _).
+slice(_, _, _, []).
+
+% P19
+rotate(List, 0, List) :- !.
+rotate(List1, N, List2) :- N > 0, !,
+    split(List1, N, List3, List4),
+    append(List4, List3, List2).
+rotate(List1, N, List2) :-
+    my_length(M, List1),
+    N1 is M + N,
+    rotate(List1, N1, List2).
+
+% P20
+remove_at(_, [], _, []).
+remove_at(X, [X|T], 1, T) :- !.
+remove_at(X, [H|T], N, [H|T1]) :-
+    N1 is N - 1,
+    remove_at(X, T, N1, T1).
+
+% P21
+insert_at(X, T, 1, [X|T]) :- !.
+insert_at(X, [H|T], N, [H|T1]) :-
+    N1 is N - 1,
+    insert_at(X, T, N1, T1).
+
+
+% P22
+range(N, N, [N]) :- !.
+range(N, M, [N|T]) :- N < M, !,
+    N1 is N + 1,
+    range(N1, M, T).
+range(_, _, []).
+
+% P23
+rnd_select(List, 0, []) :- is_list(List), !.
+rnd_select(List1, N, List2) :- is_list(List1), !,
+    N1 is N - 1,
+    length(List1, M),
+    R is random(M-1) + 1,
+    remove_at(X, List1, R, T),
+    rnd_select(T, N1, T1),
+    List2 = [X|T1].
+
+% P24
+rnd_select(N, M, List) :- number(N), number(M),
+    range(1, M, List1),
+    rnd_select(List1, N, List).
+
