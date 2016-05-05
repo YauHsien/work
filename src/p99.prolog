@@ -1,3 +1,5 @@
+% Problem set is at
+% http://www.ic.unicamp.br/~meidanis/courses/mc336/2009s2/prolog/problemas/
 
 % P01
 my_last(X, [X]).
@@ -386,3 +388,110 @@ goldbach_list(N, M, Limit) :- N =< M,
 goldbach_list(N, M, Limit) :- N =< M,
     N1 is N + 1,
     goldbach_list(N1, M, Limit).
+
+% P46
+and(A, B) :- A, B.
+
+or(A, B) :- A; B.
+
+nand(A, B) :- A, B, !, fail.
+nand(_, _).
+
+nor(A, _B) :- A, !, fail.
+nor(_A, B) :- B, !, fail.
+nor(_, _).
+
+xor(A, B) :- or(A, B), A \= B.
+
+impl(A, B) :- not(A); B.
+
+equ(A, B) :- impl(A, B), impl(B, A).
+
+table(A, B, R) :-
+    member(A, [true, false]),
+    member(B, [true, false]),
+    format("~w ~w", [A, B]),
+    (R -> R1 = true; R1 = false),
+    format(" ~w~n", [R1]).
+
+% P47
+:- op(910, fx, not).
+:- op(920, yfx, and).
+:- op(930, yfx, or).
+:- op(920, yfx, nand).
+:- op(930, yfx, nor).
+:- op(950, yfx, impl).
+:- op(950, yfx, equ).
+:- op(950, yfx, xor).
+
+% P48
+table(List, R) :-
+    bind(List),
+    print_with_space(List),
+    (R -> R1 = true; R1 = false),
+    format("~w~n", [R1]).
+
+bind([]).
+bind([H|T]) :- not(ground(H)),
+    member(H, [true, false]),
+    bind(T).
+
+print_with_space([]).
+print_with_space([H|T]) :-
+    format("~w ", [H]),
+    print_with_space(T).
+
+% P49
+gray(N, C) :-
+    C1 = [[48], [49]],
+    gray(N, C, C1, c(1, C1)).
+
+gray(N, C, _, c(N, C1)) :- !,
+    findall(X, (combination(1, C1, [Y]), atom_codes(X, Y)), C).
+gray(N, C, C1, c(M, Cm)) :- N > M,
+    M1 is M + 1,
+    findall(X, (combination(1, C1, [Y]), combination(1, Cm, [Z]),
+		append(Y, Z, X)),
+	    Cm1),
+    gray(N, C, C1, c(M1, Cm1)).
+
+% P50
+huffman(Fs, Hs) :-
+    sort_fs_list(Fs, Fs1),
+    huffman1(Fs1, Fr),
+    apply_hc(Fr, Hs1),
+    findall(hc(X,Y), (member(fr(X,_), Fs), member(hc(X,Y), Hs1)), Hs).
+
+sort_fs_list(Fs, List) :-
+    sort_fs_list(Fs, [], List).
+
+sort_fs_list([], List, List).
+sort_fs_list([H|T], List1, List2) :-
+    insert_sort(H, List1, List3),
+    sort_fs_list(T, List3, List2).
+
+insert_sort(E, [], [E]).
+insert_sort(fr(S,F), [fr(S1,F1)|T], [fr(S,F),fr(S1,F1)|T]) :- F =< F1, !.
+insert_sort(fr(S,F), [fr(S1,F1)|T], [fr(S1,F1)|T1]) :- F > F1,
+    insert_sort(fr(S,F), T, T1).
+
+huffman1([Fr], Fr).
+huffman1(Fs, Fs1) :- Fs = [_,_|_],
+    split(Fs, 2, Fs2, Fs3),
+    [fr(_,F1), fr(_,F2)] = Fs2,
+    F3 is F1 + F2,
+    insert_sort(fr(Fs2, F3), Fs3, Fs4),
+    huffman1(Fs4, Fs1).
+
+apply_hc(fr(List1,_), List2) :- is_list(List1),
+    apply_hc(List1, List3),
+    findall(hc(X, Y), (member(hc(X, Z), List3), atom_codes(Y, Z)), List2).
+apply_hc([LT,RT], List) :-
+    apply_hc(LT, [48], List1),
+    apply_hc(RT, [49], List2),
+    append(List1, List2, List).
+
+apply_hc(fr(List1,_), Tag, List2) :- is_list(List1), !,
+    apply_hc(List1, List3),
+    findall(hc(X,Y), (member(hc(X,Z), List3), append(Tag, Z, Y)), List2).
+apply_hc(fr(S,_), Tag, [hc(S,Tag)]).
