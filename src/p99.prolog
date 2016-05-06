@@ -495,3 +495,52 @@ apply_hc(fr(List1,_), Tag, List2) :- is_list(List1), !,
     apply_hc(List1, List3),
     findall(hc(X,Y), (member(hc(X,Z), List3), append(Tag, Z, Y)), List2).
 apply_hc(fr(S,_), Tag, [hc(S,Tag)]).
+
+% P54
+istree(nil).
+istree(t(_,L,R)) :-
+    istree(L),
+    istree(R).
+
+% P55
+cbal_tree(0, nil).
+cbal_tree(1, t(x, nil, nil)).
+cbal_tree(2, t(x, nil, RT)) :-
+    cbal_tree(1, RT).
+cbal_tree(2, t(x, LT, nil)) :-
+    cbal_tree(1, LT).
+cbal_tree(N, t(x, LT, RT)) :- N > 2,
+    N1 is N - 1,
+    N2 is N1 div 2,
+    N3 is N1 - N2,
+    cbal_tree(N2, LT),
+    cbal_tree(N3, RT).
+
+% P56
+symmetric(nil).
+symmetric(t(_, LT, RT)) :-
+    mirror(LT, RT).
+
+mirror(nil, nil).
+mirror(t(_, LT1, RT1), t(_, LT2, RT2)) :-
+    mirror(LT1, RT2),
+    mirror(RT1, LT2).
+
+% P57
+construct(List, Tree) :-
+    construct(List, nil, Tree).
+
+construct([], Tree, Tree).
+construct([H|T], Tree, Tree1) :-
+    add(H, Tree, Tree2),
+    construct(T, Tree2, Tree1).
+
+add(X, nil, t(X, nil, nil)).
+add(X, t(Y, LT, RT), t(Y, LT, RT1)) :- X >= Y, !,
+    add(X, RT, RT1).
+add(X, t(Y, LT, RT), t(Y, LT1, RT)) :-
+    add(X, LT, LT1).
+
+test_symmetric(List) :-
+    construct(List, Tree),
+    symmetric(Tree).
