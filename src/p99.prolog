@@ -544,3 +544,24 @@ add(X, t(Y, LT, RT), t(Y, LT1, RT)) :-
 test_symmetric(List) :-
     construct(List, Tree),
     symmetric(Tree).
+
+% P58
+sym_cbal_trees(N, Ts) :-
+    findall(T, (cbal_tree(N, T), symmetric(T)), Ts).
+
+% P59
+hbal_tree(0, nil).
+hbal_tree(N, t(x, LT, RT)) :- N > 1,
+    N1 is N - 1,
+    N2 is N - 2,
+    hbal_tree(N2, LT),
+    hbal_tree(N1, RT).
+hbal_tree(N, t(x, LT, RT)) :- N > 1,
+    N1 is N - 1,
+    N2 is N - 2,
+    hbal_tree(N1, LT),
+    hbal_tree(N2, RT).
+hbal_tree(N, t(x, LT, RT)) :- N > 0,
+    N1 is N - 1,
+    hbal_tree(N1, LT),
+    hbal_tree(N1, RT).
