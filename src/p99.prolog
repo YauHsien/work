@@ -609,3 +609,37 @@ addNodes(N, M, S) :-
     range(0, S1, Ss),
     member(N, Ss),
     M is S - N.
+
+% P61
+count_leaves(nil, 0) :- !.
+count_leaves(t(_, nil, nil), 1) :- !.
+count_leaves(t(_, LT, RT), N) :-
+    count_leaves(LT, N1),
+    count_leaves(RT, N2),
+    N is N1 + N2.
+
+% P61A
+leaves(nil, []) :- !.
+leaves(t(X, nil, nil), [X]) :- !.
+leaves(t(_, LT, RT), List) :-
+    leaves(LT, List1),
+    leaves(RT, List2),
+    append(List1, List2, List).
+
+% P62
+internals(nil, []) :- !.
+internals(t(_, nil, nil), []) :- !.
+internals(t(X, LT, RT), [X|List]) :-
+    internals(LT, List1),
+    internals(RT, List2),
+    append(List1, List2, List).
+
+% P62B
+atlevel(nil, _, []) :- !.
+atlevel(t(X, _, _), 1, [X]) :- !.
+atlevel(_, N, []) :- N < 1, !.
+atlevel(t(_, LT, RT), N, List) :- N > 1,
+    N1 is N - 1,
+    atlevel(LT, N1, List1),
+    atlevel(RT, N1, List2),
+    append(List1, List2, List).
