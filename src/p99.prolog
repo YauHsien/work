@@ -1,3 +1,4 @@
+
 % Problem set is at
 % http://www.ic.unicamp.br/~meidanis/courses/mc336/2009s2/prolog/problemas/
 
@@ -565,3 +566,46 @@ hbal_tree(N, t(x, LT, RT)) :- N > 0,
     N1 is N - 1,
     hbal_tree(N1, LT),
     hbal_tree(N1, RT).
+
+% P60
+hbal_tree_nodes(0, nil).
+hbal_tree_nodes(N, t(x, LT, RT)) :- N > 0,
+    N1 is N - 1,
+    addNodes(N2, N3, N1),
+    maxHeight(N2, H1),
+    maxHeight(N3, H2),
+    (H1 =:= H2; H1 =:= H2 + 1; H1 + 1 =:= H2),
+    minNodes(H1, N2),
+    minNodes(H2, N3),
+    hbal_tree_nodes(N2, T1),
+    hbal_tree_nodes(N3, T2),
+    (T1 \= T2, (LT = T1, RT = T2; LT = T2, RT = T1);
+     T1 == T2, LT = T1, RT = T2).
+
+count_hbal_trees_nodes(N, C) :-
+    setof(T, hbal_tree_nodes(N, T), L),
+    my_length(C, L).
+
+minNodes(H, H) :- H =< 1, !.
+minNodes(H, N) :-
+    H1 is H - 1,
+    H2 is H - 2,
+    minNodes(H1, N1),
+    minNodes(H2, N2),
+    N is 1 + N1 + N2.
+
+maxHeight(N, N) :- N =< 2, !.
+maxHeight(N, H) :-
+    N1 is N - 1,
+    addNodes(N2, N3, N1),
+    maxHeight(N2, H1),
+    maxHeight(N3, H2),
+    (H1 =:= H2 + 1, !, H is H1 + 1;
+     H1 + 1 =:= H2, !, H is H2 + 1;
+     H1 =:= H2, !, H is H1 + 1).
+
+addNodes(N, M, S) :-
+    S1 is S div 2,
+    range(0, S1, Ss),
+    member(N, Ss),
+    M is S - N.
