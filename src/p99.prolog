@@ -643,3 +643,14 @@ atlevel(t(_, LT, RT), N, List) :- N > 1,
     atlevel(LT, N1, List1),
     atlevel(RT, N1, List2),
     append(List1, List2, List).
+
+% P63
+complete_binary_tree(N, T) :-
+    complete_binary_tree(N, 1, T).
+
+complete_binary_tree(TotalN, AddressM, nil) :- TotalN < AddressM, !.
+complete_binary_tree(TotalN, AddressM, t(AddressM, LT, RT)) :-
+    M1 is 2 * AddressM,
+    M2 is M1 + 1,
+    complete_binary_tree(TotalN, M1, LT),
+    complete_binary_tree(TotalN, M2, RT).
