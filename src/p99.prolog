@@ -654,3 +654,18 @@ complete_binary_tree(TotalN, AddressM, t(AddressM, LT, RT)) :-
     M2 is M1 + 1,
     complete_binary_tree(TotalN, M1, LT),
     complete_binary_tree(TotalN, M2, RT).
+
+% P64
+layout_binary_tree(T, PT) :-
+    layout_binary_tree(T, PT, 1, _Width, 1).
+
+% (+, -, +, -, +)
+layout_binary_tree(nil, nil, _, 0, _).
+layout_binary_tree(t(W, LT, RT), t(W, X, Y, LT1, RT1), Left, Width, Height) :-
+    Height1 is Height + 1,
+    layout_binary_tree(LT, LT1, Left, Width1, Height1),
+    X is Left + Width1,
+    Left1 is X + 1,
+    layout_binary_tree(RT, RT1, Left1, Width2, Height1),
+    Y is Height,
+    Width is Width1 + 1 + Width2.
