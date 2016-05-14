@@ -696,3 +696,29 @@ layout_binary_tree_2(t(W, LT, RT), t(W, X, Y, LT1, RT1), LPos, Height, Level) :-
     Level1 is Level + 1,
     layout_binary_tree_2(LT, LT1, LPos1, Height, Level1),
     layout_binary_tree_2(RT, RT1, LPos2, Height, Level1).
+
+% P65a
+layout_binary_tree_2a(T, PT) :-
+    layout_binary_tree_2a(T, T1, LPos, Height, 1, LPos, Height),
+    relayout_binary_tree_2a(T1, PT).
+
+% (+, -, ?, ?, +, -, -).
+layout_binary_tree_2a(nil, nil, _, _, _, 0, 0).
+layout_binary_tree_2a(t(W, LT, RT), t(W, LPos, Level, LT1, RT1),
+		      LPos, Height, Level, LPos1, Height1) :-
+    Distance = (2 ** (Height - Level) div 2),
+    layout_binary_tree_2a(LT, LT1,
+			  LPos - Distance, Height, Level + 1, LPos2, H1),
+    layout_binary_tree_2a(RT, RT1,
+			  LPos + Distance, Height, Level + 1, _LPos3, H2),
+    (LPos2 =:= 0, !, LPos1 is 1;
+     LPos1 is LPos2 * 2 + 1),
+    (H1 > H2, !, Height1 is H1 +1;
+     Height1 is H2 + 1).
+
+relayout_binary_tree_2a(nil, nil).
+relayout_binary_tree_2a(t(W, X, Y, LT, RT), t(W, X1, Y1, LT1, RT1)) :-
+    X1 is X,
+    Y1 is Y,
+    relayout_binary_tree_2a(LT, LT1),
+    relayout_binary_tree_2a(RT, RT1).
