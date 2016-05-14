@@ -672,35 +672,27 @@ layout_binary_tree(t(W, LT, RT), t(W, X, Y, LT1, RT1), Left, Width, Height) :-
 
 % P65
 layout_binary_tree_2(T, PT) :-
-    tree_height(T, H),
-    layout_binary_tree_2(T, PT, 1, H, 1).
+    tree_profile(T, LPos, Height),
+    layout_binary_tree_2(T, PT, LPos, Height, 1).
 
-% (+, -)
-tree_height(nil, 0).
-tree_height(t(_, LT, RT), H) :-
-    tree_height(LT, H1),
-    tree_height(RT, H2),
-    (H1 > H2, !, H is H1 + 1;
-     H is H2 + 1).
+% (+, -, -)
+tree_profile(nil, 0, 0).
+tree_profile(t(_, LT, RT), LPos, Height) :-
+    tree_profile(LT, LPos1, H1),
+    tree_profile(RT, _LPos2, H2),
+    (LPos1 =:= 0, !, LPos is 1;
+     LPos is LPos1 * 2 + 1),
+    (H1 > H2, !, Height is H1 + 1;
+     Height is H2 + 1).
 
 % (+, -, +, +, +)
 layout_binary_tree_2(nil, nil, _, _, _).
-layout_binary_tree_2(t(W, LT, RT), t(W, X, Y, LT1, RT1), Left, Height, Level) :-
-    Level1 is Level + 1,
-    layout_binary_tree_2(LT, LT1, Left, Height, Level1),
-    Distance is 2 ** (Height - Level) div 2,
-    (nil = LT1, X is Left;
-     t(_, X1, _, _, _) = LT1, X is X1 + Distance),
+layout_binary_tree_2(t(W, LT, RT), t(W, X, Y, LT1, RT1), LPos, Height, Level) :-
+    X is LPos,
     Y is Level,
-    Left1 is X + 1,
-    layout_binary_tree_2(RT, RT2, Left1, Height, Level1),
-    (nil = RT2, Offset is Distance + 1;
-     t(_, X2, _, _, _) = RT2, Offset is Distance - X2 + 1),
-    move_right(RT2, Offset, RT1).
-
-% (+, +, -)
-move_right(nil, _, nil).
-move_right(t(W, X, Y, LT, RT), N, t(W, X1, Y, LT1, RT1)) :-
-    X1 is X + N,
-    move_right(LT, N, LT1),
-    move_right(RT, N, RT1).
+    Distance is 2 ** (Height - Level) div 2,
+    LPos1 is LPos - Distance,
+    LPos2 is LPos + Distance,
+    Level1 is Level + 1,
+    layout_binary_tree_2(LT, LT1, LPos1, Height, Level1),
+    layout_binary_tree_2(RT, RT1, LPos2, Height, Level1).
