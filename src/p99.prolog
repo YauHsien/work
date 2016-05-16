@@ -722,3 +722,24 @@ relayout_binary_tree_2a(t(W, X, Y, LT, RT), t(W, X1, Y1, LT1, RT1)) :-
     Y1 is Y,
     relayout_binary_tree_2a(LT, LT1),
     relayout_binary_tree_2a(RT, RT1).
+
+
+% P70B
+istree(t(_, List)) :-
+    is_forest(List).
+
+is_forest([]).
+is_forest([T|List]) :-
+    istree(T),
+    is_forest(List).
+
+% P70C
+nnodes(t(_, List), N) :-
+    nfnodes(List, N1),
+    N is N1 + 1.
+
+nfnodes([], 0).
+nfnodes([T|List], N) :-
+    nnodes(T, N1),
+    nfnodes(List, N2),
+    N is N1 + N2.
