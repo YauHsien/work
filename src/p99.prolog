@@ -723,6 +723,23 @@ relayout_binary_tree_2a(t(W, X, Y, LT, RT), t(W, X1, Y1, LT1, RT1)) :-
     relayout_binary_tree_2a(LT, LT1),
     relayout_binary_tree_2a(RT, RT1).
 
+% P66
+layout_binary_tree_3(T, PT) :-
+    layout_binary_tree_3(T, PT, LPos, 1, LPos, _SubtreeDistance).
+
+% (+, +, +, ?, -, -)
+layout_binary_tree_3(nil, nil, _, 0, 0, 0).
+layout_binary_tree_3(t(W, nil, t(W1, LT, RT)), t(W, X, Level, nil, RT1), Level, LPos, LPos1, Distance) :-
+    Level1 is Level + 1,
+    layout_binary_tree_3(t(W1, LT, RT), RT1, Level1, LPos2, LPos3, Distance),
+    approval_lpos(LPos, LPos3, LPos4),
+    LPos2 = 1 - LPos4,
+    LPos1 = 1 + LPos2,
+    X = Distance + 1.
+
+approval_lpos(LPos1, LPos2, LPos1) :- LPos1 >= LPos2, !.
+approval_lpos(_, LPos2, LPos2).
+
 
 % P70B
 istree(t(_, List)) :-
@@ -743,3 +760,31 @@ nfnodes([T|List], N) :-
     nnodes(T, N1),
     nfnodes(List, N2),
     N is N1 + N2.
+
+% P70
+tree(String, t(W, Forest)) :-
+    ground(String), !,
+    sub_string(String, 0, 1, _, H),
+    sub_string(String, 1, _, 1, S),
+    sub_string(String, _, 1, 0, "^"),
+    atom_codes(W, H),
+    forest(S, Forest).
+tree(String, t(W, Forest)) :-
+    ground(t(W, Forest)), !,
+    atom_codes(W, H),
+    atom_codes((^), B),
+    forest(S, Forest),
+    append([H, S, B], String).
+
+forest([], []) :- !.
+forest(String, [T|Forest]) :-
+    ground(String), !,
+    sub_string(String, 0, L, _, String1),
+    tree(String1, T),
+    sub_string(String, L, _, 0, String2),
+    forest(String2, Forest).
+forest(String, [T|Forest]) :-
+    ground([T|Forest]), !,
+    tree(String1, T),
+    forest(String2, Forest),
+    append(String1, String2, String).
