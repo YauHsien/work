@@ -788,3 +788,15 @@ forest(String, [T|Forest]) :-
     tree(String1, T),
     forest(String2, Forest),
     append(String1, String2, String).
+
+% P71
+ipl(t(_, Forest), IPL) :-
+    my_length(IPL1, Forest),
+    sum_ipls(Forest, IPL2),
+    IPL is IPL1 + IPL2.
+
+sum_ipls([], 0).
+sum_ipls([T|Forest], IPL) :-
+    ipl(T, IPL1),
+    sum_ipls(Forest, IPL2),
+    IPL is IPL1 + IPL2.
