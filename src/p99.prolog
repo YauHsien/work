@@ -800,3 +800,14 @@ sum_ipls([T|Forest], IPL) :-
     ipl(T, IPL1),
     sum_ipls(Forest, IPL2),
     IPL is IPL1 + IPL2.
+
+% P72
+bottom_up(t(W,F), Seq) :-
+    bottom_up_forest(F, Seq1),
+    append(Seq1, [W], Seq).
+
+bottom_up_forest([], []).
+bottom_up_forest([T|Forest], Seq) :-
+    bottom_up(T, Seq1),
+    bottom_up_forest(Forest, Seq2),
+    append(Seq1, Seq2, Seq).
